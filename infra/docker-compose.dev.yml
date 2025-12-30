@@ -1,0 +1,68 @@
+version: '3.8'
+
+# Development docker-compose with hot reload
+# Usage: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # FastAPI Backend with hot reload
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./dubwizard.db
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+    env_file:
+      - ../.env
+    volumes:
+      - ../apps/api/app:/app/app:ro
+      - ../packages/shared:/app/packages/shared:ro
+      - db_data:/app/data
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # Background Worker
+  worker:
+    build:
+      context: ..
+      dockerfile: worker/Dockerfile.dev
+    environment:
+      - DATABASE_URL=sqlite:///./dubwizard.db
+      - LOG_LEVEL=DEBUG
+    env_file:
+      - ../.env
+    volumes:
+      - ../worker:/app/worker:ro
+      - ../packages/shared:/app/packages/shared:ro
+      - db_data:/app/data
+      - worker_tmp:/tmp/dubwizard
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # React Frontend with Vite dev server
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    volumes:
+      - ../apps/web/src:/app/src:ro
+      - ../apps/web/public:/app/public:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    driver: local
+  worker_tmp:
+    driver: local

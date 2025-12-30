@@ -1,0 +1,35 @@
+services:
+  # Unified Web Service (API + Worker) for Render Free Tier
+  - type: web
+    name: dubwizard-app
+    env: python
+    plan: free
+    buildCommand: "pip install -e packages/shared && pip install -r apps/api/requirements.txt && pip install -r worker/requirements.txt"
+    startCommand: "sh render-start.sh"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dubwizard-db
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: dubwizard-db
+    plan: free
