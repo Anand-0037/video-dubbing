@@ -30,7 +30,7 @@ export const jobService = {
   ): Promise<void> {
     await axios.put(presignedUrl, file, {
       headers: {
-        'Content-Type': file.type,
+        'Content-Type': 'video/mp4',
         'Content-Length': file.size.toString(),
       },
       onUploadProgress: (progressEvent) => {
