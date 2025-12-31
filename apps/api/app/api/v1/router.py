@@ -10,5 +10,6 @@ api_router = APIRouter()
 # Include endpoint routers
 api_router.include_router(jobs.router, prefix="/jobs", tags=["jobs"])
 
-if shared_settings.ENVIRONMENT == "development":
+# Include storage routes for local development or when USE_LOCAL_STORAGE is enabled
+if shared_settings.USE_LOCAL_STORAGE or shared_settings.ENVIRONMENT == "development":
     api_router.include_router(storage.router, prefix="/storage", tags=["storage"])

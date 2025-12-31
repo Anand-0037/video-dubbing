@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import List, Tuple, Union
 
-from worker.models.segments import TranscriptionSegment, TranslationSegment
+from dubwizard_shared import TranscriptionSegment, TranslationSegment
 
 logger = logging.getLogger(__name__)
 

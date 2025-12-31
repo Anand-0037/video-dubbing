@@ -37,11 +37,16 @@ class Worker:
         """Initialize worker with services."""
         self.running = False
 
-        # Database setup
-        database_url = os.getenv("DATABASE_URL", "sqlite:///./dubwizard.db")
+        # Database setup - use settings.DATABASE_URL (validated by pydantic)
+        database_url = settings.DATABASE_URL
+        # Handle Render's postgres:// URL format
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+
         self.engine = create_engine(
             database_url,
-            connect_args={"check_same_thread": False} if "sqlite" in database_url else {}
+            connect_args={"check_same_thread": False} if "sqlite" in database_url else {},
+            pool_pre_ping=True,  # Verify connections before use
         )
         Base.metadata.create_all(bind=self.engine)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)

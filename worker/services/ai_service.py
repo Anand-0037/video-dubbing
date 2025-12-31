@@ -164,7 +164,6 @@ class AIService:
                         file=audio_file,
                         language=language,
                         response_format="verbose_json",
-                        timestamp_granularities=["segment"],
                     )
                 elif self.openai_client:
                     logger.info("Using OpenAI for transcription...")
@@ -173,7 +172,6 @@ class AIService:
                         file=audio_file,
                         language=language,
                         response_format="verbose_json",
-                        timestamp_granularities=["segment"],
                     )
                 else:
                     raise AIServiceError("No AI client available")
@@ -185,9 +183,9 @@ class AIService:
         for i, seg in enumerate(response.segments):
             segment = TranscriptionSegment(
                 id=i + 1,
-                start=seg.start,
-                end=seg.end,
-                text=seg.text.strip(),
+                start=seg['start'],
+                end=seg['end'],
+                text=seg['text'].strip(),
             )
             segments.append(segment)
 
