@@ -5,8 +5,8 @@ import time
 import uuid
 from typing import Optional
 import boto3
+from botocore.config import Config
 from botocore.exceptions import ClientError
-
 from dubwizard_shared.config import shared_settings as settings
 from dubwizard_shared.constants import MAX_VIDEO_SIZE_MB, ALLOWED_CONTENT_TYPES, ALLOWED_VIDEO_EXTENSIONS
 
@@ -30,6 +30,7 @@ class S3Service:
                 region_name=settings.AWS_REGION,
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                config=Config(signature_version='s3v4')
             )
         self.bucket_name = settings.S3_BUCKET_NAME
         self.local_storage_path = "/tmp/dubwizard_uploads"
